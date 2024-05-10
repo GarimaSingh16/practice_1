@@ -1,0 +1,146 @@
+import subprocess
+import pyttsx3
+import tkinter
+import speech_recognition as sr
+import datetime
+import wikipedia
+import webbrowser
+import os
+import pyjokes
+import requests
+import pyaudio
+uname=""
+assname=""
+engine=pyttsx3.init('sapi5')
+voices=engine.getProperty('voices')
+engine.setProperty('voice',voices[0].id)
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+def username():
+    global uname
+    print("What should I call you ?")
+    speak("What should I call you ? ")
+    uname=takeCommand()
+def takeCommand():
+    
+    r=sr.Recognizer()
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source,duration=0.2)
+        print("listening...")
+        audio=r.listen(source)
+        try:
+            print("Recognizing...")
+            query=r.recognize_google(audio,language='en')
+            print(f"User said :{query}\n")
+        except Exception as e :
+            print(e)
+            print("unable to recognize")
+            print("Please repeat")
+            speak("Please repeat")
+            query=takeCommand()
+        return query
+
+def wishme():
+    hour=int(datetime.datetime.now().hour)
+    if hour>=0 and hour<12:
+        print(f'Good Morning {uname}')
+        speak(f'Good Morning {uname}')
+    elif hour>12 and hour<16:
+              print(f"Good Afternoon {uname}")
+              speak(f"Good Afternoon {uname}")
+    else:
+        print(f"Good Evening {uname}")
+        speak(f"Good Evening {uname}")
+    global assname
+    assname=("Charlie")
+    print("I am your Assistant",assname)
+    speak("I am your Assistant")
+    speak(assname)
+    speak("How can I help you ")
+
+    #searching for every query 
+
+if __name__=='__main__':  
+    clear=lambda:os.system('cls')
+    username()
+    wishme()
+    while True:
+        query=takeCommand().lower()
+        if 'who is' in query or 'tell me about' in query:
+            print("Searching...")
+            speak("searching...")
+            query=query.replace("who is","")
+            query=query.replace("tell me about","")
+            results=wikipedia.summary(query,sentences=3)
+            print("According to Wikipedia ",results)
+            speak("According to Wikipedia")
+            speak(results)
+        elif 'open youtube' in query:
+            print("Here you go to YouTube\n")
+            speak("Here you go to YouTube\n")
+            webbrowser.open("youtube.com")
+        elif 'open google' in query:
+            print("Here you go to Google\n")
+            speak("Here you go to Google\n")
+            webbrowser.open("google.com")
+        elif 'time' in query:
+            strTime=datetime.datetime.now().strftime("%H:%M:%S")
+            print(f"The time is {strTime}")
+            speak(f"The time is {strTime}")
+        elif 'how are you' in query:
+            print("I am fine . Thank You .")
+            speak("I am fine . Thank You .")
+            print("How are you ?")
+            speak("How are you ?")
+        elif 'fine' in query or 'good' in query:
+            print("It's good to know you are fine")
+            speak("It's good to know you are fine")
+        elif 'change my name' in query:
+            query=query.replace("change my name","")
+            uname=query
+            print("What would you like to be called")
+            speak("What would you like to be called") 
+            uname=takeCommand()
+            print("Name changed successfully")
+            speak("Name changed successfully")
+        elif "what's your name" in query:
+            print(f"my name is {assname}")
+            speak(f"my name is {assname}")
+        elif 'exit' in query or 'stop' in query:
+            print("Thanks for giving me your time")
+            speak("Thanks for giving me your time")
+            exit()
+        elif 'joke' in query:
+            print(pyjokes.get_joke())
+            speak(pyjokes.get_joke())
+        elif 'search' in query or 'play' in query:
+            query=query.replace("search","")
+            query=query.replace("play","")
+            webbrowser.open(query)
+        elif 'shutdown' in query:
+            print("Hold on a sec ! Your system is on its way to shut down")
+            speak("Hold on a sec ! Your system is on its way to shut down")
+            subprocess.call('shutdown /p /f')
+        elif "where is" in query:
+            query=query.replace("where is","")
+            location=query
+            print("User asked to locate")
+            speak("User asked to locate")
+            print(location)
+            speak(location)
+            webbrowser.open("https://www.google.nl/maps/place/"+location+"")
+        elif "restart" in query:
+            subprocess.call(["shutdown","/r"])
+        elif 'hibernate' in query or 'sleep' in query:
+            print("Hibernating")
+            speak("Hibernating")
+            subprocess.call("shutdown /h")
+        elif "log off" in query or "sign out" in query:
+            print("Make sure all the application are closed before sign-out")
+            speak("Make sure all the application are closed before sign-out")
+            time.sleep(5)
+            subprocess.call(["shutdown","/l"])
+        else:
+            print("Can not help you regarding this")
+            speak("Can not help you regarding this")
